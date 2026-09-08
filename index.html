@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لیست سرورهای تیم‌اسپیک</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Vazirmatn', sans-serif;
+  }
+
+  body {
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1428 100%);
+    color: #e0e0e0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(0, 123, 255, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(0, 200, 150, 0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .hero {
+    text-align: center;
+    padding: 30px 20px 20px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(79, 172, 254, 0.12);
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    color: #4facfe;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: #a0a8c0;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.9;
+  }
+
+  /* Search */
+  .search-section {
+    margin: 25px 0 25px;
+  }
+
+  .search-box {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 12px 45px 12px 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: 'Vazirmatn', sans-serif;
+  }
+
+  .search-box input:focus {
+    border-color: rgba(0, 200, 150, 0.4);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .search-box input::placeholder {
+    color: #6b7290;
+  }
+
+  .search-box svg {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    fill: #6b7290;
+  }
+
+  /* Server List Table */
+  .servers-list {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .server-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: all 0.25s ease;
+    position: relative;
+  }
+
+  .server-row:last-child {
+    border-bottom: none;
+  }
+
+  .server-row:hover {
+    background: rgba(0, 200, 150, 0.04);
+  }
+
+  .server-row::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: transparent;
+    transition: all 0.25s ease;
+  }
+
+  .server-row.online::before {
+    background: linear-gradient(180deg, #00c896, #00a8e8);
+  }
+
+  .server-row.offline::before {
+    background: #ff6b6b;
+    opacity: 0.4;
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .status-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+  }
+
+  .server-row.online .status-dot {
+    background: #00f2fe;
+    box-shadow: 0 0 8px #00f2fe;
+    animation: pulse-dot 1.5s infinite;
+  }
+
+  .server-row.offline .status-dot {
+    background: #ff6b6b;
+    opacity: 0.6;
+  }
+
+  .status-text {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .server-row.online .status-text {
+    color: #00f2fe;
+  }
+
+  .server-row.offline .status-text {
+    color: #ff6b6b;
+    opacity: 0.7;
+  }
+
+  .server-info-cell {
+    min-width: 0;
+  }
+
+  .server-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .server-address {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #7a8299;
+    direction: ltr;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .server-tags {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .tag {
+    background: rgba(79, 172, 254, 0.1);
+    border: 1px solid rgba(79, 172, 254, 0.2);
+    color: #4facfe;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .capacity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #c8d0e0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .capacity-badge svg {
+    width: 12px;
+    height: 12px;
+    fill: #7a8299;
+  }
+
+  .copy-btn {
+    background: rgba(0, 200, 150, 0.1);
+    border: 1px solid rgba(0, 200, 150, 0.25);
+    color: #00f2fe;
+    padding: 5px 12px;
+    border-radius: 7px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Vazirmatn', sans-serif;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover {
+    background: rgba(0, 200, 150, 0.2);
+    border-color: rgba(0, 200, 150, 0.5);
+  }
+
+  .copy-btn.copied {
+    background: rgba(0, 200, 150, 0.3);
+    color: #fff;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.3); }
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7290;
+    display: none;
+  }
+
+  .empty-state.show {
+    display: block;
+  }
+
+  .empty-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+  }
+
+  /* Register Section */
+  .register-section {
+    text-align: center;
+    padding: 45px 25px;
+    margin: 40px 0 25px;
+    background: linear-gradient(135deg, rgba(0, 200, 150, 0.08), rgba(79, 172, 254, 0.08));
+    border: 1px solid rgba(0, 200, 150, 0.2);
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .register-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(0, 200, 150, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .register-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .register-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .register-desc {
+    color: #a0a8c0;
+    margin-bottom: 22px;
+    font-size: 14px;
+    max-width: 500px;
+    margin-right: auto;
+    margin-left: auto;
+    line-height: 1.8;
+  }
+
+  .register-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #00c896 0%, #00a8e8 100%);
+    color: #fff;
+    text-decoration: none;
+    padding: 13px 32px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 200, 150, 0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  .register-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 200, 150, 0.5);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 50%;
+    transform: translateX(50%) translateY(100px);
+    background: rgba(0, 200, 150, 0.95);
+    color: #fff;
+    padding: 11px 22px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0, 200, 150, 0.4);
+    opacity: 0;
+    transition: all 0.4s ease;
+    z-index: 1000;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(50%) translateY(0);
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 25px 20px;
+    color: #6b7290;
+    font-size: 13px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 30px;
+  }
+
+  footer .brand {
+    color: #00f2fe;
+    font-weight: 600;
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    h1 { font-size: 26px; }
+    .subtitle { font-size: 14px; }
+    .container { padding: 20px 15px; }
+    .hero { padding: 20px 10px 15px; }
+
+    .server-row {
+      grid-template-columns: auto 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 10px 12px;
+      padding: 14px;
+    }
+
+    .server-info-cell {
+      grid-column: 1 / 3;
+      grid-row: 1;
+    }
+
+    .capacity-badge {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    .status-indicator {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .server-tags {
+      grid-column: 2;
+      grid-row: 2;
+      justify-content: flex-end;
+    }
+
+    .copy-btn {
+      grid-column: 3;
+      grid-row: 2;
+      padding: 5px 10px;
+    }
+
+    .register-section { padding: 35px 20px; }
+    .register-title { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Header -->
+    <section class="hero">
+      <span class="badge">📡 بروز شده در 17 شهریور 1405</span>
+      <h1>لیست سرورهای تیم اسپیک عمومی و معتبر ایران</h1>
+      <p class="subtitle">
+        مجموعه‌ای از بهترین سرورهای تیم‌اسپیک ایرانی در یک نگاه.
+      </p>
+    </section>
+
+    <!-- Search -->
+    <div class="search-section">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="جستجو در نام یا آدرس سرور..." oninput="filterServers()">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </div>
+    </div>
+
+    <!-- Server List -->
+    <div class="servers-list" id="serversList">
+      
+      <div class="server-row online" data-name="بکس پارسی">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">بکس پارسی</div>
+          <div class="server-address">baxparsi.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'baxparsi.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="بازیطوری">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">بازیطوری</div>
+          <div class="server-address">bazitory.com</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">گیمینگ</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'bazitory.com')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="تیم اسپیک جیم">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">تیم اسپیک جیم</div>
+          <div class="server-address">tsgym.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'tsgym.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="تی اس من">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">تی اس من</div>
+          <div class="server-address">tsman.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'tsman.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="عموها">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">عموها</div>
+          <div class="server-address">amoha.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'amoha.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="پارس لیون">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">پارس لیون</div>
+          <div class="server-address">88ts.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, '88ts.ir')">کپی</button>
+      </div>
+      
+      <div class="server-row online" data-name="لیون تی اس">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">لیون تی اس</div>
+          <div class="server-address">Lionts.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'Lionts.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="لوتوس">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">لوتوس</div>
+          <div class="server-address">Lsts.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'Lsts.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="مستر سرور">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">مستر سرور</div>
+          <div class="server-address">msts.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'msts.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="پرایم">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">پرایم</div>
+          <div class="server-address">prcs.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">گیمینگ</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'prcs.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="سلاطیم گیم">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">سلاطین گیم</div>
+          <div class="server-address">SalatinTS.IR</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">گیمینگ</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'SalatinTS.IR')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="پرشین">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">پرشین</div>
+          <div class="server-address">persian.tssg.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'persian.tssg.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="پازل بکس">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">پازل بکس</div>
+          <div class="server-address">puzzlebx.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'puzzlebx.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="مولوتو فمیلی">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">مولوتو فمیلی</div>
+          <div class="server-address">MolotovFamily.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">گیمینگ</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'MolotovFamily.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="زیرو زون">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">زیرو زون</div>
+          <div class="server-address">0zone.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">گیمینگ</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, '0zone.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="تی اس نورث">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">زیرو زون</div>
+          <div class="server-address">tsnorth.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'tsnorth.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="اسکای گیمینگ">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">اسکای گیمینگ</div>
+          <div class="server-address">tsww.ir:6674</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">گیمینگ</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'tsww.ir:6674')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="پارس سیف">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">پارس سیف</div>
+          <div class="server-address">Ts.ParsSafe.Org</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'Ts.ParsSafe.Org')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="کلاب گیمر">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">کلاب گیمر</div>
+          <div class="server-address">xsoltan.ir</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">گیمینگ</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'xsoltan.ir')">کپی</button>
+      </div>
+
+      <div class="server-row online" data-name="تی اس 6">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">آنلاین</span>
+        </div>
+        <div class="server-info-cell">
+          <div class="server-name">تی اس 6</div>
+          <div class="server-address">TSSIX.COM</div>
+        </div>
+        <div class="server-tags">
+          <span class="tag">عمومی</span>
+        </div>
+        <div class="capacity-badge">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          ۱٬۰۰۰
+        </div>
+        <button class="copy-btn" onclick="copyAddress(this, 'TSSIX.COM')">کپی</button>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🔍</div>
+        <p>نتیجه‌ای برای جستجوی شما پیدا نشد.</p>
+      </div>
+
+    </div>
+
+    <!-- Register Section -->
+    <section class="register-section">
+      <div class="register-icon">🚀</div>
+      <h2 class="register-title">سرور خودتان را ثبت کنید!</h2>
+      <p class="register-desc">
+        صاحب سرور تیم‌اسپیک هستید؟ سرور خود را در لیست BaxParsi ثبت کنید تا کاربران ایرانی شما را پیدا کنند. ثبت‌نام کاملاً رایگان است.
+      </p>
+      <a href="#" class="register-btn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        ثبت سرور من
+      </a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>© تمامی حقوق متعلق به <span class="brand"> BaxParsi </span> است &nbsp;|&nbsp; طراحی شده توسط Khashi</p>
+    </footer>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">✓ آدرس کپی شد!</div>
+
+  <script>
+    // Copy to clipboard
+    function copyAddress(btn, address) {
+      navigator.clipboard.writeText(address).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = '✓ کپی شد';
+        btn.classList.add('copied');
+        showToast('آدرس سرور کپی شد!');
+
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Toast notification
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = '✓ ' + message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // Search filter
+    function filterServers() {
+      const searchValue = document.getElementById('searchInput').value.toLowerCase().trim();
+      const rows = document.querySelectorAll('.server-row');
+      const emptyState = document.getElementById('emptyState');
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const searchText = (row.dataset.name || '').toLowerCase();
+        const address = row.querySelector('.server-address').textContent.toLowerCase();
+        const match = !searchValue || searchText.includes(searchValue) || address.includes(searchValue);
+        row.style.display = match ? '' : 'none';
+        if (match) visibleCount++;
+      });
+
+      emptyState.classList.toggle('show', visibleCount === 0);
+    }
+  </script>
+</body>
+</html>
